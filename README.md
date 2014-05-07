@@ -1,4 +1,4 @@
-mucss
+μCSS
 =====
 
-Lightweight parser for Cascade Style Sheets for .NET programs (μCSS)
+A lightweight CSS parser for .NET programs.
