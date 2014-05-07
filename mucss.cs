@@ -17,21 +17,18 @@ namespace mucss
 		/// <param name="CSS">The cascade style sheets to be loaded</param>
 		public Parser(string CSS)
 		{
-			List<string> sels = new List<string>();
-
 			css = CSS;
 
-			MatchCollection mc = new Regex(@"[\w\d:.#, ]*[\w]*\{[\w\r\n-: #;]*\}", RegexOptions.Singleline).Matches(css);
+			MatchCollection mc = new Regex(@"[\t\w\d:.#, ]*[\w]*\{[\t\w\r\n-: #;]*\}", RegexOptions.Singleline).Matches(css);
 			foreach (Match m in mc)
 			{
 				Selector sel = new Selector() { Declarations = new List<Declaration>() };
 
 				//finding selectors
 				string selbody = Regex.Replace(m.Value,@"\/\*[\w\d \r\n\t]*\*\/",""); //remove comments
-				//todo: улучшить маску вырезания комментариев
-				sels.Add(selbody);//убрать
+				selbody = Regex.Replace(selbody,@"[ \t]","");//remove spaces and tabs
 
-				sel.Pattern = Regex.Match(selbody,@"[\w\d:.#, ]*[\w]*{").Value.Replace("{","");
+				sel.Pattern = Regex.Match(selbody, @"[\w\d-\(\)\[\]:.#, ]*{",RegexOptions.Singleline).Value.Replace("{", "");
 				sel.InnerCSS = selbody;
 
 				selbody = Regex.Replace(selbody, @"[\w\d:.#, ]*[\w]*{", "").Replace("}", ""); //remove selector
@@ -63,6 +60,14 @@ namespace mucss
 			}
 		}
 
+		public List<Selector> GetAllStyles()
+		{
+			return selectors;
+		}
+
+		/// <summary>Gets CSS style for selector that can be found by <paramref name="Query"/></summary>
+		/// <param name="Query">The query which be used to find corresponding CSS Selector (regular expressions are supported)</param>
+		/// <returns>The CSS style</returns>
 		public Selector Get(string Query){
 			foreach (Selector s in selectors)
 			{
