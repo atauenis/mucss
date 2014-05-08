@@ -33,7 +33,7 @@ namespace mucss_test
 			foreach (Selector s in sels)
 			{
 				Buffer+=s.Pattern + ":";
-				foreach (Declaration d in s.Declarations)
+				foreach (Declaration d in s.Declarations.Values)
 				{
 					Buffer += "\r\n\t" + d.Property + "=" + d.Value;
 				}

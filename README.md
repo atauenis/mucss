@@ -15,3 +15,4 @@ A lightweight CSS parser for .NET programs.
 4.) Then you may get all selectors using `List<mucss.Selector> selectors = p.GetAllStyles()` or only one that is required: `mucss.Selector style = p.Get(THE SELECTOR NAME OR REGEXP MASK)`
 
 Please note that μCSS is too simple and lightweight to be an full CSS parser: it doesn't support @media, @import and other "pre-compilation instructions". Also it has some non-found bugs.
+The more tips & tricks may be found in the wiki.

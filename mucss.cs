@@ -22,7 +22,7 @@ namespace mucss
 			MatchCollection mc = new Regex(@"[\t\w\d:.#, ]*[\w]*\{[\t\w\r\n-: #;]*\}", RegexOptions.Singleline).Matches(css);
 			foreach (Match m in mc)
 			{
-				Selector sel = new Selector() { Declarations = new List<Declaration>() };
+				Selector sel = new Selector() { Declarations = new Dictionary<string,Declaration>() };
 
 				//finding selectors
 				string selbody = Regex.Replace(m.Value,@"\/\*[\w\d \r\n\t]*\*\/",""); //remove comments
@@ -54,7 +54,7 @@ namespace mucss
 					dec.Value = parts[1];
 					dec.InnerCSS  = declar;
 
-					sel.Declarations.Add(dec);
+					sel.Declarations.Add(dec.Property, dec);
 				}
 				selectors.Add(sel);
 			}
@@ -87,7 +87,7 @@ namespace mucss
 		/// <summary>The pattern of this selector (i.e. a:hover)</summary>
 		public string Pattern;
 		/// <summary>The stuff of this selector</summary>
-		public List<Declaration> Declarations;
+		public Dictionary<string, Declaration> Declarations;
 		/// <summary>The full content of the selector</summary>
 		public string InnerCSS;
 	}
