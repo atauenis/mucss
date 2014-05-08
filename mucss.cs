@@ -54,7 +54,10 @@ namespace mucss
 					dec.Value = parts[1];
 					dec.InnerCSS  = declar;
 
+					try { 
 					sel.Declarations.Add(dec.Property, dec);
+					}
+					catch { }
 				}
 				selectors.Add(sel);
 			}
