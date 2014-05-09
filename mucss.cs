@@ -29,9 +29,10 @@ namespace mucss
 				selbody = Regex.Replace(selbody,@"[ \t]","");//remove spaces and tabs
 
 				sel.Pattern = Regex.Match(selbody, @"[\w\d-\(\)\[\]:.#, ]*{",RegexOptions.Singleline).Value.Replace("{", "");
-				sel.InnerCSS = selbody;
+				sel.OuterCSS = selbody;
 
 				selbody = Regex.Replace(selbody, @"[\w\d:.#, ]*[\w]*{", "").Replace("}", ""); //remove selector
+				sel.InnerCSS = selbody;
 
 				//split declarations
 				string[] decs = selbody.Split(';');
@@ -91,8 +92,10 @@ namespace mucss
 		public string Pattern;
 		/// <summary>The stuff of this selector</summary>
 		public Dictionary<string, Declaration> Declarations;
-		/// <summary>The full content of the selector</summary>
+		/// <summary>The full inner content of the selector</summary>
 		public string InnerCSS;
+		/// <summary>The full body of the selector</summary>
+		public string OuterCSS;
 	}
 
 	/// <summary>CSS declarations (i.e. color: #ABCDEF)</summary>
