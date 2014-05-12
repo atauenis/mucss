@@ -11,7 +11,11 @@ namespace mucss
     public class Parser
     {
 		private string css;
-		private List<Selector> selectors = new List<Selector>();
+		private Dictionary<string,Selector> selectors = new Dictionary<string,Selector>();
+#if DEBUG
+		/// <summary>Parsing log for debugging purposes. Available only when μCSS is compiled with the Debug configuration</summary>
+		public string log;
+#endif
 
 		/// <summary>Initialize the μCSS and load the <paramref name="CSS"/> into it.</summary>
 		/// <param name="CSS">The cascade style sheets to be loaded</param>
@@ -60,11 +64,11 @@ namespace mucss
 					}
 					catch { }
 				}
-				selectors.Add(sel);
+				RegisterSelector(sel);
 			}
 		}
 
-		public List<Selector> GetAllStyles()
+		public Dictionary<string, Selector> GetAllStyles()
 		{
 			return selectors;
 		}
@@ -73,7 +77,7 @@ namespace mucss
 		/// <param name="Query">The query which be used to find corresponding CSS Selector (regular expressions are supported)</param>
 		/// <returns>The CSS style</returns>
 		public Selector Get(string Query){
-			foreach (Selector s in selectors)
+			foreach (Selector s in selectors.Values)
 			{
 				if(Regex.IsMatch(s.Pattern,Query))
 				return s;
@@ -81,6 +85,58 @@ namespace mucss
 
 			throw new ArgumentOutOfRangeException("No style was found for " + Query);
 		}
+
+		/// <summary>Save the parsed selector(s) in the memory</summary>
+		/// <param name="s">The selector</param>
+		private void RegisterSelector(Selector s){
+			if (s.Pattern.IndexOf(',') > 0)
+			{
+				//if the selector matches namy patterns, all of they should be stored separately
+				string[] patterns = s.Pattern.Split(',');
+				#if DEBUG
+				log += "\r\nSplitted: " + s.Pattern + "{";
+				#endif
+				foreach (string pattern in patterns)
+				{
+					#if DEBUG
+					log += "\r\n\t" + pattern+";";
+					#endif
+					RegisterSelector(
+						new Selector()
+						{
+							Pattern = pattern, Declarations = s.Declarations, InnerCSS = s.InnerCSS, OuterCSS = s.OuterCSS
+						}
+					);
+				}
+				#if DEBUG
+				log += "\r\n}";
+				#endif
+				return;
+			}
+
+			if(!selectors.ContainsKey(s.Pattern)){
+					selectors.Add(s.Pattern, s);
+					#if DEBUG
+					log += "\r\nRegistered: " + s.Pattern;
+					#endif
+				}
+			else
+				{
+					//merge with existing
+					Selector existing = selectors[s.Pattern];
+					existing.InnerCSS += "\n" + s.InnerCSS;
+					existing.OuterCSS += "\n" + s.OuterCSS;
+					foreach (Declaration d in s.Declarations.Values)
+					{
+						try { existing.Declarations.Add(d.Property, d); }
+						catch { } //old good On Error Resume Next equivalent :-)
+					}
+					#if DEBUG
+					log += "\r\nMerged " + s.Pattern + " with " + existing.Pattern;
+					#endif
+				}
+			}
+
     }
 
 
