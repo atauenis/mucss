@@ -8,7 +8,7 @@ using System.Text.RegularExpressions;
 namespace mucss
 {
 	/// <summary>μCSS</summary>
-    public class Parser
+    public class Stylesheet
     {
 		private string css;
 		private Dictionary<string,Selector> selectors = new Dictionary<string,Selector>();
@@ -19,7 +19,7 @@ namespace mucss
 
 		/// <summary>Initialize the μCSS and load the <paramref name="CSS"/> into it.</summary>
 		/// <param name="CSS">The cascade style sheets to be loaded</param>
-		public Parser(string CSS)
+		public Stylesheet(string CSS)
 		{
 			css = CSS;
 
@@ -68,23 +68,46 @@ namespace mucss
 			}
 		}
 
-		public Dictionary<string, Selector> GetAllStyles()
+		/// <summary>Get all parsed selectors</summary>
+		public Dictionary<string, Selector> GetAllSelectors()
 		{
 			return selectors;
 		}
 
+		
 		/// <summary>Gets CSS style for selector that can be found by <paramref name="Query"/></summary>
 		/// <param name="Query">The query which be used to find corresponding CSS Selector (regular expressions are supported)</param>
 		/// <returns>The CSS style</returns>
-		public Selector Get(string Query){
+		private Selector Get(string Query){
 			foreach (Selector s in selectors.Values)
 			{
-				if(Regex.IsMatch(s.Pattern,Query))
+				if(Regex.IsMatch(s.Pattern,Query,RegexOptions.IgnoreCase))
 				return s;
 			}
 
 			throw new ArgumentOutOfRangeException("No style was found for " + Query);
 		}
+
+		/// <summary>Get a selector</summary>
+		/// <param name="Pattern">The pattern that corresponds the required selector</param>
+		/// <returns>The requested selector</returns>
+		/// <exception cref="System.ArgumentOutOfRangeException">An ArgumentOutOfRangeException will be thrown if the selector is't present.</exception>
+		public Selector this[string Pattern]{
+			get { return Get(Pattern); }
+		}
+
+		/// <summary>Get a declaration</summary>
+		/// <param name="Pattern">The pattern that corresponds the required selector</param>
+		/// <param name="Property">The property name that should be finded in the selector and to be returned</param>
+		/// <returns>The property declaration</returns>
+		/// <exception cref="System.ArgumentOutOfRangeException">An ArgumentOutOfRangeException will be thrown if the selector is't present.</exception>
+		/// <exception cref="System.Collections.Generic.KeyNotFoundException">An KeyNotFoundException will be thrown if the property cannot be found</exception>
+		public Declaration this[string Pattern, string Property]
+		{
+			get { return Get(Pattern).Declarations[Property]; }
+		}
+
+		
 
 		/// <summary>Save the parsed selector(s) in the memory</summary>
 		/// <param name="s">The selector</param>
@@ -144,7 +167,7 @@ namespace mucss
 	/// <summary>CSS selector (i.e. a:hover{})</summary>
 	public struct Selector
 	{
-		/// <summary>The pattern of this selector (i.e. a:hover)</summary>
+		/// <summary>The pattern of this selector (i.e. "a:hover")</summary>
 		public string Pattern;
 		/// <summary>The stuff of this selector</summary>
 		public Dictionary<string, Declaration> Declarations;

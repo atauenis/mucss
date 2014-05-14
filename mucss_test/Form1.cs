@@ -13,7 +13,7 @@ namespace mucss_test
 {
 	public partial class Form1 : Form
 	{
-	mucss.Parser parser;
+	mucss.Stylesheet parser;
 		public Form1()
 		{
 			InitializeComponent();
@@ -23,8 +23,8 @@ namespace mucss_test
 		{
 			this.UseWaitCursor = true;
 			DateTime dt1 = DateTime.Now;
-			parser = new mucss.Parser(txtCSS.Text);
-			Dictionary<string, Selector> sels = parser.GetAllStyles();
+			parser = new mucss.Stylesheet(txtCSS.Text);
+			Dictionary<string, Selector> sels = parser.GetAllSelectors();
 			DateTime dt2 = DateTime.Now;
 			this.UseWaitCursor = false;
 			
